@@ -8,16 +8,16 @@ Capture video;
 PImage slateImage;
 PImage currentImage;
 // How different must a pixel be to be a "motion" pixel
-float threshold = 40;
+float threshold = 50;
 color backgroundColor = color(0); 
 boolean slateTaken = false;
 
-float tileCount = 0;
+float tileCount = 300;
 
 PImage slateGridSection, currentGridSection;
 
 void setup() { 
-  size(720,480);
+  size(800,600);
   
   video = new Capture(this, width, height, 30);
   // Create an empty image the same size as the video
@@ -61,6 +61,10 @@ void draw() {
     popMatrix();
     
     video.updatePixels();
+    
+    if(second() %5 == 0){
+      saveFrame("images/" + timestamp()+"_##.png");
+    }
   }
   else {
    background(0); 
@@ -73,9 +77,7 @@ boolean isSectionDifferent(PImage slateSection, PImage newSection){
   
   int diffCounter = 0;
   //differnce cutoff is half different pixels
-  
   int diffCutoff = (newSection.width*newSection.height)/2;
-  
   
   // Begin loop to walk through every pixel
   for (int x = 0; x < newSection.width; x ++ ) {
@@ -89,10 +91,12 @@ boolean isSectionDifferent(PImage slateSection, PImage newSection){
         diffCounter += 1;
       }
       
+      
       if(diffCounter > diffCutoff) {
         return true;
       }
-      
+      //TODO add a condition to see if it is even mathematically possible to get a 
+      //diff at this point in the loop.  to optimize, duh
     }
   }
   
@@ -112,6 +116,7 @@ void mouseClicked() {
     slateImage.updatePixels();
     
     slateTaken = true;
+    println("click");
   }
 }
 
@@ -128,4 +133,9 @@ boolean colorsSimilar(color baseColor, color compareColor) {
     return true;
   }
   
+}
+
+String timestamp() {
+  Calendar now = Calendar.getInstance();
+  return String.format("%1$ty%1$tm%1$td_%1$tH%1$tM%1$tS", now);
 }
